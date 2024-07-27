@@ -38,4 +38,10 @@ type UserLogin struct{
 	Password string `json:"password"`
 }
 
+ type UserChangePassword struct{
+	 Email string `json:"email"`
+	 NewPassword string `json:"new_password"`
+	 ConfirmNewPassword string `json:"confirm_new_password"`
+ }
+
 
