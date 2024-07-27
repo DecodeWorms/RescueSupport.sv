@@ -33,3 +33,8 @@ type Kyc struct {
 	NumberOfEmployees int `json:"number_of_employees"`
 	Address Address `json:"address"`
 }
+
+type Login struct{
+	Email string `json:"email"`
+	Password string `json:"password"`
+}
