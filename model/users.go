@@ -44,4 +44,11 @@ type UserLogin struct{
 	 ConfirmNewPassword string `json:"confirm_new_password"`
  }
 
+ type UserUpdatePassword struct {
+	 Email string `json:"email"`
+	 OldPassword string `json:"old_password"`
+	 NewPassword string `json:"new_password"`
+	 ConfirmNewPassword string `json:"confirm_new_password"`
+ }
+
 
