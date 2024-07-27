@@ -33,4 +33,22 @@ type UserKyc struct{
 	Code string `json:"code" bson:"code"`
 }
 
+type UserLogin struct{
+	Email string `json:"email"`
+	Password string `json:"password"`
+}
+
+ type UserChangePassword struct{
+	 Email string `json:"email"`
+	 NewPassword string `json:"new_password"`
+	 ConfirmNewPassword string `json:"confirm_new_password"`
+ }
+
+ type UserUpdatePassword struct {
+	 Email string `json:"email"`
+	 OldPassword string `json:"old_password"`
+	 NewPassword string `json:"new_password"`
+	 ConfirmNewPassword string `json:"confirm_new_password"`
+ }
+
 
