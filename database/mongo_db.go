@@ -10,9 +10,13 @@ import (
 	"time"
 )
 
+const (
+	supporterCollection = "supporters"
+)
+
 type Mongodb struct {
-	Client          *mongo.Client
-	databaseAddress string
+	Client       *mongo.Client
+	databaseName string
 }
 
 func NewMongo(address, url string) (DataStore, *mongo.Client, error) {
@@ -34,32 +38,36 @@ func NewMongo(address, url string) (DataStore, *mongo.Client, error) {
 	}
 
 	log.Println("Connected to Mongodb successfully")
-	return &Mongodb{Client: cli, databaseAddress: address}, cli, nil
+	return &Mongodb{Client: cli, databaseName: address}, cli, nil
 }
 
-func (m Mongodb) Create(data *model.UserSignUp) error {
+func (repo Mongodb) Create(data *model.UserSignUp) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (m Mongodb) Update(data *model.UserKyc) error {
+func (repo Mongodb) Update(data *model.UserKyc) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (m Mongodb) Login(data *model.UserLogin) error {
+func (repo Mongodb) Login(data *model.UserLogin) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (m Mongodb) ChangePassword(data *model.ChangePassword) error {
+func (repo Mongodb) ChangePassword(data *model.ChangePassword) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (m Mongodb) UpdatePassword(data *model.UpdatePassword) error {
+func (repo Mongodb) UpdatePassword(data *model.UpdatePassword) error {
 	//TODO implement me
 	panic("implement me")
+}
+
+func (repo Mongodb) col(collectionName string) *mongo.Collection {
+	return repo.Client.Database(repo.databaseName).Collection(collectionName)
 }
 
 var _ DataStore = &Mongodb{}
