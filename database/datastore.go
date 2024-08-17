@@ -8,9 +8,12 @@ type DataStore interface {
 }
 
 type User interface {
-	Create(data *model.UserSignUp) error
-	Update(data *model.UserKyc) error
-	Login(data *model.UserLogin) error
-	ChangePassword(data *model.ChangePassword) error
-	UpdatePassword(data *model.UpdatePassword) error
+	CreateCompany(data *model.Company) error
+	CreateUser(data *model.Users) error
+	UpdateUser(ID string, data *model.Users) error
+	GetUserByID(ID string) (*model.Users, error)
+	GetUserByEmail(email string) (*model.Users, error)
+	UpdateCompany(ID string, data *model.Company) error
+	GetCompanyByName(name string) (*model.Company, error)
+	GetCompanyByID(ID string) (*model.Company, error)
 }
