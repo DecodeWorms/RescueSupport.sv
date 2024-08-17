@@ -72,7 +72,39 @@ func (u Users) Login(data model.UserLogin) error {
 	if !b {
 		return fmt.Errorf("error invalid password %v", err)
 	}
-
 	//User email and password is correct
+	return nil
+}
+
+func (u Users) ChangePassword(data model.UserChangePassword) error {
+	//Check if the user's record exist
+	us, err := u.store.GetUserByEmail(data.Email)
+	if err != nil {
+		return fmt.Errorf("error getting user's record %v", err)
+	}
+
+	//Compare new password and confirm new password
+	if data.NewPassword == data.ConfirmNewPassword {
+		return fmt.Errorf("error newPassword is not equal to confirmNewPassword")
+	}
+
+	//Hash both newPassword
+	pwd, err := u.encrypt.HashPassword(data.NewPassword)
+	if err != nil {
+		return fmt.Errorf("error encrypting password")
+	}
+
+	//Update user's password and confirmPassword
+	rec := &model.Users{
+		Password:        pwd,
+		ConfirmPassword: pwd,
+	}
+
+	if err := u.store.UpdateUser(us.ID, rec); err != nil {
+		return fmt.Errorf("error updating user's password")
+	}
+
+	//Pass the user email to Kafka to mail user that password changed successfully.
+
 	return nil
 }
