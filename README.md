@@ -27,7 +27,7 @@ Client(Mobile application, web browser) -> Api(RescueSupport) -> Databases(Mongo
 
 - Resource Pledging
  - Allow supporters to pledge for resources(food , drink and clothes etc)
- - Track pledged resources and their fulfilment status
+ - Track pledged resources and their fulfillment status
 
 - Volunteering opportunities
   - List available volunteering opportunities

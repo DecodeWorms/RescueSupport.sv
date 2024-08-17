@@ -15,5 +15,6 @@ type User interface {
 	GetUserByEmail(email string) (*model.Users, error)
 	UpdateCompany(ID string, data *model.Company) error
 	GetCompanyByName(name string) (*model.Company, error)
+	GetCompanyByEmail(email string) (*model.Company, error)
 	GetCompanyByID(ID string) (*model.Company, error)
 }
