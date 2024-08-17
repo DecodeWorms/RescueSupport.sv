@@ -1,14 +1,15 @@
 package database
 
 import (
-	"RescueSupport.sv/model"
 	"context"
+	"log"
+	"time"
+
+	"RescueSupport.sv/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	"log"
-	"time"
 )
 
 const (
@@ -122,6 +123,15 @@ func (repo Mongodb) GetCompanyByName(name string) (*model.Company, error) {
 
 func (repo Mongodb) GetCompanyByID(ID string) (*model.Company, error) {
 	filter := bson.M{"id": ID}
+	var cmp *model.Company
+	if err := repo.col(supporterCollection).FindOne(context.Background(), filter).Decode(&cmp); err != nil {
+		return nil, err
+	}
+	return cmp, nil
+}
+
+func (repo Mongodb) GetCompanyByEmail(email string) (*model.Company, error) {
+	filter := bson.M{"email": email}
 	var cmp *model.Company
 	if err := repo.col(supporterCollection).FindOne(context.Background(), filter).Decode(&cmp); err != nil {
 		return nil, err
