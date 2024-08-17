@@ -22,11 +22,11 @@ func NewUsers(store database.Mongodb, idGen idgenerator.IdGenerator) Users {
 	}
 }
 
-func (u Users) CompanySignUp(data model.SignUp) error {
+func (u Users) CompanySignUp(data model.UserSignUp) error {
 	//Check if the email is already exist
-	_, err := u.store.GetCompanyByEmail(data.Email)
+	_, err := u.store.GetUserByEmail(data.Email)
 	if err != nil {
-		return fmt.Errorf("error company's email already exist %v", data.Email)
+		return fmt.Errorf("error user's email already exist %v", data.Email)
 	}
 
 	//Check if the password and confirm password is the same
@@ -45,17 +45,34 @@ func (u Users) CompanySignUp(data model.SignUp) error {
 		return fmt.Errorf("error encrypting password")
 	}
 
-	//Pass the Company email to messaging system Kafka
+	//Pass the User email to messaging system Kafka
 
 	//Persist the data to the db
-	rec := &model.Company{
+	rec := &model.Users{
 		ID:              u.idGen.Generate(), //Fix me
 		Email:           data.Email,
 		Password:        hashPassword,
 		ConfirmPassword: hashConfirmPassword,
 	}
-	if err := u.store.CreateCompany(rec); err != nil {
-		return fmt.Errorf("error creating company %v", err)
+	if err := u.store.CreateUser(rec); err != nil {
+		return fmt.Errorf("error creating user %v", err)
 	}
+	return nil
+}
+
+func (u Users) Login(data model.UserLogin) error {
+	//Check if it is a registered user
+	us, err := u.store.GetUserByEmail(data.Email)
+	if err != nil {
+		return fmt.Errorf("error user's record not found")
+	}
+
+	//Compare the hash and non hash password to login a user
+	b, err := u.encrypt.CompareHashAndPassword(us.Password, data.Password)
+	if !b {
+		return fmt.Errorf("error invalid password %v", err)
+	}
+
+	//User email and password is correct
 	return nil
 }
