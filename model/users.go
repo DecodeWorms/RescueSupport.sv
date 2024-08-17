@@ -6,8 +6,12 @@
 	ID string `json:"id" bson:"id"`
 	FirstName string `json:"first_name" bson:"first_name"`
 	LastName string `json:"last_name" bson:"last_name"`
+	Email string `json:"email" bson:"email"`
+	Password string `json:"password" bson:"password"`
+	ConfirmPassword string `json:"confirm_password" bson:"confirm_password"`
 	Age int  `json:"age" bson:"age"`
 	Gender string `json:"gender" bson:"gender"`
+	Address UserAddress `json:"address" bson:"address"`
 }
 
 type UserAddress struct{
@@ -26,11 +30,11 @@ type UserSignUp struct {
 }
 
 type UserKyc struct{
-	FirstName string `json:"first_name" bson:"first_name"`
-	LastName string `json:"last_name" bson:"last_name"`
-	Age int `json:"age" bson:"age"`
-	Gender string `json:"gender" bson:"gender"`
-	Code string `json:"code" bson:"code"`
+	FirstName string `json:"first_name"`
+	LastName string `json:"last_name"`
+	Age int `json:"age"`
+	Gender string `json:"gender"`
+	Address UserAddress `json:"address"`
 }
 
 type UserLogin struct{

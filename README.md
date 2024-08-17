@@ -6,7 +6,7 @@ Client(Mobile application, web browser) -> Api(RescueSupport) -> Databases(Mongo
 
 # Api(Backend Services)
 - Onboarding OR Oauth
-    - Registration
+    - Registration(Company and User)
     - Login
     - Change Password
     - Update Password
