@@ -108,3 +108,43 @@ func (u Users) ChangePassword(data model.UserChangePassword) error {
 
 	return nil
 }
+
+func (u Users) UpdatePassword(data model.UserUpdatePassword) error {
+	//Check if it is a registered user
+	us, err := u.store.GetUserByEmail(data.Email)
+	if err != nil {
+		return fmt.Errorf("error user's record does not exist")
+	}
+
+	//Compare oldPassword and hashPassword
+	b, err := u.encrypt.CompareHashAndPassword(us.Password, data.OldPassword)
+	if !b {
+		return fmt.Errorf("error oldPassword is incorrect %v", err)
+	}
+
+	//Compare newPassword and confirmPassword
+	if data.NewPassword == data.ConfirmNewPassword {
+		return fmt.Errorf("error comparing newPassword and confirmNewPassword %v", data.NewPassword)
+	}
+
+	//Hash the newPassword
+	pwd, err := u.encrypt.HashPassword(data.NewPassword)
+	if err != nil {
+		return fmt.Errorf("error encrypting password %v", err)
+	}
+
+	//Update the user's password and confirmPassword records
+	rec := &model.Users{
+		Password:        pwd,
+		ConfirmPassword: pwd,
+	}
+
+	if err := u.store.UpdateUser(us.ID, rec); err != nil {
+		return fmt.Errorf("error updating user's record %v", err)
+	}
+
+	//Send user's email to Kafka to send mail to the user
+
+	return nil
+
+}
