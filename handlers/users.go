@@ -22,7 +22,7 @@ func NewUsers(store database.Mongodb, idGen idgenerator.IdGenerator) Users {
 	}
 }
 
-func (u Users) CompanySignUp(data model.UserSignUp) error {
+func (u Users) UserSignUp(data model.UserSignUp) error {
 	//Check if the email is already exist
 	_, err := u.store.GetUserByEmail(data.Email)
 	if err != nil {
