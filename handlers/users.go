@@ -10,22 +10,23 @@ import (
 )
 
 type Users struct {
-	store   database.Mongodb
+	store   database.DataStore
 	encrypt encrypt.Encryptor
 	idGen   idgenerator.IdGenerator
 }
 
-func NewUsers(store database.Mongodb, idGen idgenerator.IdGenerator) Users {
+func NewUsers(store database.DataStore, idGen idgenerator.IdGenerator, encrypt encrypt.Encryptor) Users {
 	return Users{
-		store: store,
-		idGen: idGen,
+		store:   store,
+		idGen:   idGen,
+		encrypt: encrypt,
 	}
 }
 
 func (u Users) UserSignUp(data model.UserSignUp) error {
 	//Check if the email is already exist
-	_, err := u.store.GetUserByEmail(data.Email)
-	if err != nil {
+	us, _ := u.store.GetUserByEmail(data.Email)
+	if us != nil {
 		return fmt.Errorf("error user's email already exist %v", data.Email)
 	}
 
@@ -76,9 +77,9 @@ func (u Users) Login(data model.UserLogin) error {
 	return nil
 }
 
-func (u Users) ChangePassword(data model.UserChangePassword) error {
+func (u Users) ChangePassword(ID string, data model.UserChangePassword) error {
 	//Check if the user's record exist
-	us, err := u.store.GetUserByEmail(data.Email)
+	us, err := u.store.GetUserByID(ID)
 	if err != nil {
 		return fmt.Errorf("error getting user's record %v", err)
 	}
@@ -109,9 +110,9 @@ func (u Users) ChangePassword(data model.UserChangePassword) error {
 	return nil
 }
 
-func (u Users) UpdatePassword(data model.UserUpdatePassword) error {
+func (u Users) UpdatePassword(ID string, data model.UserUpdatePassword) error {
 	//Check if it is a registered user
-	us, err := u.store.GetUserByEmail(data.Email)
+	us, err := u.store.GetUserByID(ID)
 	if err != nil {
 		return fmt.Errorf("error user's record does not exist")
 	}
