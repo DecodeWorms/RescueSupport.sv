@@ -15,6 +15,7 @@ import (
 	"RescueSupport.sv/handlers"
 	"RescueSupport.sv/idgenerator"
 	"RescueSupport.sv/server"
+	"github.com/DecodeWorms/kakify/producer"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,8 +29,16 @@ func SetUpDatabase(url, name string) (database.DataStore, *mongo.Client) {
 	return repo, client
 }
 
-func SetUpHandler(store database.DataStore) handlers.Users {
-	return handlers.NewUsers(store, idgenerator.New(), encrypt.NewPasswordEncryptor())
+func SetUpKakifyHandler(brokers []string) *producer.KafkaProducer {
+	p, err := producer.NewKafkaProducer(brokers)
+	if err != nil {
+		log.Fatal("Error failed to start kakify")
+	}
+	return p
+}
+
+func SetUpHandler(store database.DataStore, p *producer.KafkaProducer) handlers.Users {
+	return handlers.NewUsers(store, idgenerator.New(), encrypt.NewPasswordEncryptor(), p)
 }
 
 func SetUpServer(userHandler handlers.Users) server.User {

@@ -7,20 +7,24 @@ import (
 	"RescueSupport.sv/encrypt"
 	"RescueSupport.sv/idgenerator"
 	"RescueSupport.sv/model"
+	"github.com/DecodeWorms/kakify/producer"
 )
 
 type Users struct {
 	store   database.DataStore
 	encrypt encrypt.Encryptor
 	idGen   idgenerator.IdGenerator
+	pub     *producer.KafkaProducer
 }
 
-func NewUsers(store database.DataStore, idGen idgenerator.IdGenerator, encrypt encrypt.Encryptor) Users {
+func NewUsers(store database.DataStore, idGen idgenerator.IdGenerator, encrypt encrypt.Encryptor, p *producer.KafkaProducer) Users {
 	return Users{
 		store:   store,
 		idGen:   idGen,
 		encrypt: encrypt,
+		pub:     p,
 	}
+
 }
 
 func (u Users) UserSignUp(data model.UserSignUp) error {
@@ -147,5 +151,4 @@ func (u Users) UpdatePassword(ID string, data model.UserUpdatePassword) error {
 	//Send user's email to Kafka to send mail to the user
 
 	return nil
-
 }

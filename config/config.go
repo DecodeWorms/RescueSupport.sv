@@ -1,10 +1,11 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -13,6 +14,7 @@ const (
 	databaseName = "DATABASE_NAME"
 	databaseURL  = "DATABASE_URL"
 	serviceName  = "SERVICE_NAME"
+	kafkaBrokers = "KAFKA_BROKERS"
 )
 
 type source interface {
@@ -62,6 +64,7 @@ type Config struct {
 	DatabaseURL  string
 	AutoReload   bool
 	ServiceName  string
+	KafkaBrokers []string
 }
 
 func ImportConfig(source source) Config {
@@ -82,5 +85,6 @@ func ImportConfig(source source) Config {
 		DatabaseName: databaseName,
 		DatabaseURL:  databaseURL,
 		ServiceName:  serviceName,
+		KafkaBrokers: []string{"localhost:9092"},
 	}
 }
