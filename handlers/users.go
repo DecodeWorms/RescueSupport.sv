@@ -59,6 +59,10 @@ func (u Users) UserSignUp(data model.UserSignUp) error {
 		Password:        hashPassword,
 		ConfirmPassword: hashConfirmPassword,
 	}
+	if err := u.pub.SendMessage("verify-email", []byte("user-email"), []byte(rec.Email)); err != nil {
+		return fmt.Errorf("error publishing user email")
+	}
+
 	if err := u.store.CreateUser(rec); err != nil {
 		return fmt.Errorf("error creating user %v", err)
 	}
