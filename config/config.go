@@ -9,12 +9,16 @@ import (
 )
 
 const (
-	appEnv       = "APP_ENV"
-	servicePort  = "APP_SERVICE_PORT"
-	databaseName = "DATABASE_NAME"
-	databaseURL  = "DATABASE_URL"
-	serviceName  = "SERVICE_NAME"
-	kafkaBrokers = "KAFKA_BROKERS"
+	appEnv         = "APP_ENV"
+	servicePort    = "APP_SERVICE_PORT"
+	databaseName   = "DATABASE_NAME"
+	databaseURL    = "DATABASE_URL"
+	serviceName    = "SERVICE_NAME"
+	kafkaBrokers   = "KAFKA_BROKERS"
+	googleClientID = "GOOGLE_CLIENT_ID"
+	googleSecret   = "GOOGLE_SECRET"
+	googleApiKey   = "API_KEY"
+	redirectUrl    = "REDIRECT_URL"
 )
 
 type source interface {
@@ -58,13 +62,17 @@ func (o OSSource) GetEnvInt(key string, fallback int) int {
 }
 
 type Config struct {
-	AppEnv       string
-	ServicePort  string
-	DatabaseName string
-	DatabaseURL  string
-	AutoReload   bool
-	ServiceName  string
-	KafkaBrokers []string
+	AppEnv             string
+	ServicePort        string
+	DatabaseName       string
+	DatabaseURL        string
+	AutoReload         bool
+	ServiceName        string
+	KafkaBrokers       []string
+	GoogleApiKey       string
+	GoogleClientID     string
+	GoogleClientSecret string
+	RedirectUrl        string
 }
 
 func ImportConfig(source source) Config {
@@ -78,13 +86,21 @@ func ImportConfig(source source) Config {
 	databaseName := source.GetEnv(databaseName, "appservices")
 	databaseURL := source.GetEnv(databaseURL, "mongodb://127.0.0.1:27017")
 	serviceName := source.GetEnv(serviceName, "rescue-support.sv")
+	googleApiKey := source.GetEnv(googleApiKey, "")
+	googleClientID := source.GetEnv(googleClientID, "")
+	googleClientSecret := source.GetEnv(googleSecret, "")
+	redirectUrl := source.GetEnv(redirectUrl, "")
 
 	return Config{
-		AppEnv:       appEnv,
-		ServicePort:  port,
-		DatabaseName: databaseName,
-		DatabaseURL:  databaseURL,
-		ServiceName:  serviceName,
-		KafkaBrokers: []string{"localhost:9092"},
+		AppEnv:             appEnv,
+		ServicePort:        port,
+		DatabaseName:       databaseName,
+		DatabaseURL:        databaseURL,
+		ServiceName:        serviceName,
+		KafkaBrokers:       []string{"localhost:9092"},
+		GoogleApiKey:       googleApiKey,
+		GoogleClientID:     googleClientID,
+		GoogleClientSecret: googleClientSecret,
+		RedirectUrl:        redirectUrl,
 	}
 }

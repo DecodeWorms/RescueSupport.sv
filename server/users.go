@@ -1,12 +1,22 @@
 package server
 
 import (
+	"context"
+	"encoding/json"
+	"log"
 	"net/http"
 
+	"RescueSupport.sv/config"
 	"RescueSupport.sv/handlers"
 	"RescueSupport.sv/model"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
+
+// var Scopes = []string{"https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"}
+var Scopes = []string{"profile", "email"}
+var c = config.ImportConfig(config.OSSource{})
 
 type User struct {
 	user handlers.Users
@@ -15,6 +25,16 @@ type User struct {
 func NewUser(user handlers.Users) User {
 	return User{
 		user: user,
+	}
+}
+
+func handleOauthConfig(clientID, clientSecret, redirectUrl string, scopes []string) *oauth2.Config {
+	return &oauth2.Config{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectUrl,
+		Endpoint:     google.Endpoint,
+		Scopes:       scopes,
 	}
 }
 
@@ -95,6 +115,68 @@ func (u User) UpdatePassword() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, gin.H{"data": handleServerResponse(200, "success", "", nil, nil)})
 	}
 }
+
+func (u User) OauthPage() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		html := `<html><body><a href="/user/oauth_login">Google Login</a></body></html>`
+		ctx.Writer.Write([]byte(html))
+	}
+}
+
+func (u User) LoginWithOauth() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+
+		//Load configuration variables for Oauth
+		oauthConfig := handleOauthConfig(c.GoogleClientID, c.GoogleClientSecret, "http://localhost:8001/user/oauth_redirect", Scopes)
+
+		url := oauthConfig.AuthCodeURL("state", oauth2.AccessTypeOffline)
+		ctx.Redirect(http.StatusTemporaryRedirect, url)
+	}
+}
+
+func (u User) GoogleRedirect() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		code := ctx.Query("code") // Use c.Query to get query parameters
+		if code == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"data": handleServerResponse(401, "Bad request,Code parameter is missing", "", nil, nil)})
+			return
+		}
+
+		oauthConfig := handleOauthConfig(c.GoogleClientID, c.GoogleClientSecret, "http://localhost:8001/user/oauth_redirect", Scopes)
+		token, err := oauthConfig.Exchange(context.Background(), code)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"data": handleServerResponse(401, "Bad request, failed to exchange token", "", err.Error(), nil)})
+			return
+		}
+
+		// You can now use the token to access user information.
+		client := oauthConfig.Client(context.Background(), token)
+		resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"data": handleServerResponse(401, "Bad request,failed to get user info", "", err.Error(), nil)})
+			return
+		}
+		defer resp.Body.Close()
+		//userInfo, _ := io.ReadAll(resp.Body)
+
+		//Serialize response body into struct User
+		var user model.SignUpWithOauth
+		if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+			log.Fatalf("unable to perse the response body %v", err)
+			return
+		}
+
+		//Store the record into the DB..
+		if err := u.user.StoreRecordWithOauth(user); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"data": handleServerResponse(500, "internal server error", "", err.Error(), nil)})
+			log.Printf("%d : Internal server error , unable to store user's record %v", 500, err.Error())
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"data": handleServerResponse(200, "success", "", nil, nil)})
+	}
+}
+
 func handleServerResponse(code int, status, token string, error any, object *model.Users) model.ServerResponse {
 	return model.ServerResponse{
 		Code:   code,
