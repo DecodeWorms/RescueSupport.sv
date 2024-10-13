@@ -15,7 +15,6 @@ import (
 	"RescueSupport.sv/handlers"
 	"RescueSupport.sv/idgenerator"
 	"RescueSupport.sv/server"
-	"github.com/DecodeWorms/kakify/producer"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -29,16 +28,17 @@ func SetUpDatabase(url, name string) (database.DataStore, *mongo.Client) {
 	return repo, client
 }
 
-func SetUpKakifyHandler(brokers []string) *producer.KafkaProducer {
+/*func SetUpKakifyHandler(brokers []string) *producer.KafkaProducer {
 	p, err := producer.NewKafkaProducer(brokers)
 	if err != nil {
 		log.Fatal("Error failed to start kakify")
 	}
 	return p
 }
+*/
 
-func SetUpHandler(store database.DataStore, p *producer.KafkaProducer) handlers.Users {
-	return handlers.NewUsers(store, idgenerator.New(), encrypt.NewPasswordEncryptor(), p)
+func SetUpHandler(store database.DataStore) handlers.Users {
+	return handlers.NewUsers(store, idgenerator.New(), encrypt.NewPasswordEncryptor())
 }
 
 func SetUpServer(userHandler handlers.Users) server.User {
@@ -58,6 +58,13 @@ func SetupRouter(server *server.User) *gin.Engine {
 	router.POST("/user/login", server.Login())
 	router.PUT("/user/change_password", server.ChangePassword())
 	router.PUT("/user/update_password", server.UpdatePassword())
+	router.PUT("/user", server.CompleteKyc())
+	router.GET("/user", server.ViewProfile())
+
+	//Oauth Api endpoints
+	router.GET("/", server.OauthPage())
+	router.GET("/user/oauth_login", server.LoginWithOauth())
+	router.GET("/user/oauth_redirect", server.GoogleRedirect())
 	return router
 }
 

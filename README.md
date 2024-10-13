@@ -2,11 +2,12 @@
 The RescueSupport services provides aid for underprivileged people
 
 # System Design architecture
-Client(Mobile application, web browser) -> Api(RescueSupport) -> Databases(MongoDB)
+Client(Mobile application, web browser) -> Api -> Backend Server(RescueSupport) -> Databases(MongoDB)
 
 # Api(Backend Services)
 - Onboarding OR Oauth
     - Registration(Company and User)
+    - KYC
     - Login
     - Change Password
     - Update Password

@@ -10,8 +10,8 @@ var c config.Config
 func main() {
 	c = config.ImportConfig(config.OSSource{})
 	store, client := serverutil.SetUpDatabase(c.DatabaseURL, c.DatabaseName)
-	pro := serverutil.SetUpKakifyHandler(c.KafkaBrokers)
-	handler := serverutil.SetUpHandler(store, pro)
+	//pro := serverutil.SetUpKakifyHandler(c.KafkaBrokers)
+	handler := serverutil.SetUpHandler(store)
 	server := serverutil.SetUpServer(handler)
 	router := serverutil.SetupRouter(&server)
 	serverutil.StartServer(router, client)
