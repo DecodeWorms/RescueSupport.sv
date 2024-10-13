@@ -166,6 +166,7 @@ func (u Users) StoreRecordWithOauth(data model.SignUpWithOauth) error {
 
 	//Persist the record into the DB
 	d := &model.Users{
+		ID:        u.idGen.Generate(),
 		FirstName: data.FirstName,
 		LastName:  data.LastName,
 		Email:     data.Email,
@@ -174,4 +175,56 @@ func (u Users) StoreRecordWithOauth(data model.SignUpWithOauth) error {
 		return fmt.Errorf("error creating data using Oauth %v", err)
 	}
 	return nil
+}
+
+func (u Users) CompleteKyc(ID string, data model.UserKyc) error {
+	//Check if the user's record exist
+	_, err := u.store.GetUserByID(ID)
+	if err != nil {
+		return fmt.Errorf("user's record not exist %v", err)
+	}
+
+	//Update the user's record
+	add := model.UserAddress{
+		Name:    data.Address.Name,
+		City:    data.Address.City,
+		Country: data.Address.Country,
+		Code:    data.Address.Code,
+	}
+	rec := &model.Users{
+		FirstName: data.FirstName,
+		LastName:  data.LastName,
+		Age:       data.Age,
+		Gender:    data.Gender,
+		Address:   add,
+	}
+	if err := u.store.UpdateUser(ID, rec); err != nil {
+		return fmt.Errorf("error updating user's record %v", err)
+	}
+	return nil
+}
+
+func (u Users) ViewProfile(ID string) (*model.Users, error) {
+	//Check if a user's record already exist using ID
+	res, err := u.store.GetUserByID(ID)
+	if err != nil {
+		return nil, fmt.Errorf("user's record not exist %v", err)
+	}
+
+	add := model.UserAddress{
+		Name:    res.Address.Name,
+		City:    res.Address.City,
+		Country: res.Address.Country,
+		Code:    res.Address.Code,
+	}
+
+	result := &model.Users{
+		FirstName: res.FirstName,
+		LastName:  res.LastName,
+		Email:     res.Email,
+		Age:       res.Age,
+		Gender:    res.Gender,
+		Address:   add,
+	}
+	return result, nil
 }
