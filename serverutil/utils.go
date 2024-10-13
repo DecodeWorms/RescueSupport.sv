@@ -60,6 +60,7 @@ func SetupRouter(server *server.User) *gin.Engine {
 	router.PUT("/user/update_password", server.UpdatePassword())
 	router.PUT("/user", server.CompleteKyc())
 	router.GET("/user", server.ViewProfile())
+	router.PUT("/user/update_profile", server.UpdateKyc())
 
 	//Oauth Api endpoints
 	router.GET("/", server.OauthPage())

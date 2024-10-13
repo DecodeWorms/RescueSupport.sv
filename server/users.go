@@ -201,6 +201,31 @@ func (u User) CompleteKyc() gin.HandlerFunc {
 	}
 }
 
+func (u User) UpdateKyc() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ID := ctx.Query("id")
+		if ID == "" {
+			ctx.JSON(400, gin.H{"data": handleServerResponse(400, "bad request", "", nil, nil)})
+			return
+		}
+
+		//Get the request body
+		var user model.UserKyc
+		if err := ctx.ShouldBindJSON(&user); err != nil {
+			ctx.JSON(400, gin.H{"data": handleServerResponse(400, "bad request", "", err.Error(), nil)})
+			return
+		}
+
+		//handle process of updating user's record
+		if err := u.user.CompleteKyc(ID, user); err != nil {
+			ctx.JSON(500, gin.H{"data": handleServerResponse(400, "internal server error", "", err.Error(), nil)})
+			return
+		}
+		ctx.JSON(200, gin.H{"data": handleServerResponse(200, "success", "", nil, nil)})
+	}
+
+}
+
 func (u User) ViewProfile() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ID := ctx.Query("id")
