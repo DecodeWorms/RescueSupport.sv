@@ -12,7 +12,9 @@ func main() {
 	store, client := serverutil.SetUpDatabase(c.DatabaseURL, c.DatabaseName)
 	//pro := serverutil.SetUpKakifyHandler(c.KafkaBrokers)
 	handler := serverutil.SetUpHandler(store)
+	companyHandler := serverutil.SetUpCompanyHandler(store)
 	server := serverutil.SetUpServer(handler)
-	router := serverutil.SetupRouter(&server)
+	companyServer := serverutil.SetUpCompanyServer(companyHandler)
+	router := serverutil.SetupRouter(&server, &companyServer)
 	serverutil.StartServer(router, client)
 }
