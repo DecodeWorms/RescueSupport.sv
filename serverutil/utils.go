@@ -41,11 +41,19 @@ func SetUpHandler(store database.DataStore) handlers.Users {
 	return handlers.NewUsers(store, idgenerator.New(), encrypt.NewPasswordEncryptor())
 }
 
+func SetUpCompanyHandler(store database.DataStore) handlers.Company {
+	return handlers.NewCompany(store, encrypt.NewPasswordEncryptor(), idgenerator.New())
+}
+
 func SetUpServer(userHandler handlers.Users) server.User {
 	return server.NewUser(userHandler)
 }
 
-func SetupRouter(server *server.User) *gin.Engine {
+func SetUpCompanyServer(companyHandler handlers.Company) server.Company {
+	return server.NewCompany(companyHandler)
+}
+
+func SetupRouter(server *server.User, company *server.Company) *gin.Engine {
 	router := gin.Default()
 
 	// Add Middleware
@@ -53,13 +61,17 @@ func SetupRouter(server *server.User) *gin.Engine {
 	router.Use(gin.Recovery())
 	router.Use(cors.Default())
 
-	//List your API endpoints here..
+	//List your user API endpoints here..
 	router.POST("/user", server.SignUp())
 	router.POST("/user/login", server.Login())
 	router.PUT("/user/change_password", server.ChangePassword())
 	router.PUT("/user/update_password", server.UpdatePassword())
 	router.PUT("/user", server.CompleteKyc())
 	router.GET("/user", server.ViewProfile())
+	router.PUT("/user/update_profile", server.UpdateKyc())
+
+	//List your company API endpoints here..
+	router.POST("/company", company.CompanySignUp())
 
 	//Oauth Api endpoints
 	router.GET("/", server.OauthPage())

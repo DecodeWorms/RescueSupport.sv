@@ -204,6 +204,33 @@ func (u Users) CompleteKyc(ID string, data model.UserKyc) error {
 	return nil
 }
 
+func (u Users) UpdateKyc(ID string, data model.UserKyc) error {
+	//Check if the user's record exist
+	_, err := u.store.GetUserByID(ID)
+	if err != nil {
+		return fmt.Errorf("user's record not exist %v", err)
+	}
+
+	//Update the user's record
+	add := model.UserAddress{
+		Name:    data.Address.Name,
+		City:    data.Address.City,
+		Country: data.Address.Country,
+		Code:    data.Address.Code,
+	}
+	rec := &model.Users{
+		FirstName: data.FirstName,
+		LastName:  data.LastName,
+		Age:       data.Age,
+		Gender:    data.Gender,
+		Address:   add,
+	}
+	if err := u.store.UpdateUser(ID, rec); err != nil {
+		return fmt.Errorf("error updating user's record %v", err)
+	}
+	return nil
+}
+
 func (u Users) ViewProfile(ID string) (*model.Users, error) {
 	//Check if a user's record already exist using ID
 	res, err := u.store.GetUserByID(ID)
